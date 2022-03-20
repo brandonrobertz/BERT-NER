@@ -2,15 +2,25 @@
 
 BERT named entity recognition (NER) with an emphasis on fine-tuning and ease-of-use (Docker). Forked from Kamal Raj's [original repo](https://github.com/kamalkraj/BERT-NER).
 
-# Requirements
+## Requirements
 
 - `python3`
 - `pip3 install -r requirements.txt`
 
-# Run
+## Training
 
-`python run_ner.py --data_dir=data/ --bert_model=bert-base-cased --task_name=ner --output_dir=out_base --max_seq_length=128 --do_train --num_train_epochs 5 --do_eval --warmup_proportion=0.1`
+    python run_ner.py \
+        --data_dir=data/ \
+        --bert_model=bert-large-cased \
+        --task_name=ner \
+        --output_dir=out_large \
+        --max_seq_length=128 \
+        --num_train_epochs 5 \
+        --do_train \
+        --do_eval \
+        --warmup_proportion=0.1
 
+More information about getting prepared for fine-tuning BERT NER models can be found in `data-notes-fine-tuning.md`.
 
 # Result
 
