@@ -124,3 +124,7 @@ cmake*
 Makefile
 CMakeCache.txt
 !cmake.png
+.DS_Store
+
+*.swp
+*.zip

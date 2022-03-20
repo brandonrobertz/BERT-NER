@@ -1,5 +1,4 @@
 """BERT NER Inference."""
-
 from __future__ import absolute_import, division, print_function
 
 import json
@@ -8,16 +7,22 @@ import os
 import torch
 import torch.nn.functional as F
 from nltk import word_tokenize
-from pytorch_transformers import (BertConfig, BertForTokenClassification,
+from pytorch_transformers import (BertConfig,
+                                  BertForTokenClassification,
                                   BertTokenizer)
 
 
 class BertNer(BertForTokenClassification):
-
     def forward(self, input_ids, token_type_ids=None, attention_mask=None, valid_ids=None):
-        sequence_output = self.bert(input_ids, token_type_ids, attention_mask, head_mask=None)[0]
+        sequence_output = self.bert(
+            input_ids, token_type_ids, attention_mask, head_mask=None
+        )[0]
         batch_size,max_len,feat_dim = sequence_output.shape
-        valid_output = torch.zeros(batch_size,max_len,feat_dim,dtype=torch.float32,device='cuda' if torch.cuda.is_available() else 'cpu')
+        valid_output = torch.zeros(
+            batch_size, max_len, feat_dim,
+            dtype=torch.float32,
+            device='cuda' if torch.cuda.is_available() else 'cpu'
+        )
         for i in range(batch_size):
             jj = -1
             for j in range(max_len):
@@ -28,10 +33,10 @@ class BertNer(BertForTokenClassification):
         logits = self.classifier(sequence_output)
         return logits
 
-class Ner:
 
+class Ner:
     def __init__(self,model_dir: str):
-        self.model , self.tokenizer, self.model_config = self.load_model(model_dir)
+        self.model, self.tokenizer, self.model_config = self.load_model(model_dir)
         self.label_map = self.model_config["label_map"]
         self.max_seq_length = self.model_config["max_seq_length"]
         self.label_map = {int(k):v for k,v in self.label_map.items()}
@@ -43,7 +48,9 @@ class Ner:
         model_config = os.path.join(model_dir,model_config)
         model_config = json.load(open(model_config))
         model = BertNer.from_pretrained(model_dir)
-        tokenizer = BertTokenizer.from_pretrained(model_dir, do_lower_case=model_config["do_lower"])
+        tokenizer = BertTokenizer.from_pretrained(
+            model_dir, do_lower_case=model_config["do_lower"]
+        )
         return model, tokenizer, model_config
 
     def tokenize(self, text: str):
@@ -94,7 +101,10 @@ class Ner:
         logits_label = torch.argmax(logits,dim=2)
         logits_label = logits_label.detach().cpu().numpy().tolist()[0]
 
-        logits_confidence = [values[label].item() for values,label in zip(logits[0],logits_label)]
+        logits_confidence = [
+            values[label].item()
+            for values,label in zip(logits[0],logits_label)
+        ]
 
         logits = []
         pos = 0
@@ -102,14 +112,20 @@ class Ner:
             if index == 0:
                 continue
             if mask == 1:
-                logits.append((logits_label[index-pos],logits_confidence[index-pos]))
+                logits.append((logits_label[index-pos],
+                               logits_confidence[index-pos]))
             else:
                 pos += 1
         logits.pop()
 
-        labels = [(self.label_map[label],confidence) for label,confidence in logits]
+        labels = [
+            (self.label_map[label],confidence)
+            for label,confidence in logits
+        ]
         words = word_tokenize(text)
         assert len(labels) == len(words)
-        output = [{"word":word,"tag":label,"confidence":confidence} for word,(label,confidence) in zip(words,labels)]
+        output = [
+            {"word":word,"tag":label,"confidence":confidence}
+            for word,(label,confidence) in zip(words,labels)
+        ]
         return output
-

@@ -1,0 +1,10 @@
+version: '3.4'
+
+services:
+  nlp:
+    restart: never
+    build: .
+    environment:
+      BRANDON: "brandon"
+    volumes:
+      - ./:/app

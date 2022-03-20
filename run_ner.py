@@ -27,12 +27,24 @@ logging.basicConfig(format = '%(asctime)s - %(levelname)s - %(name)s -   %(messa
                     level = logging.INFO)
 logger = logging.getLogger(__name__)
 
+
 class Ner(BertForTokenClassification):
 
-    def forward(self, input_ids, token_type_ids=None, attention_mask=None, labels=None,valid_ids=None,attention_mask_label=None):
-        sequence_output = self.bert(input_ids, token_type_ids, attention_mask,head_mask=None)[0]
+    def forward(self, input_ids,
+                token_type_ids=None,
+                attention_mask=None,
+                labels=None,
+                valid_ids=None,
+                attention_mask_label=None):
+        sequence_output = self.bert(input_ids,
+                                    token_type_ids,
+                                    attention_mask,head_mask=None)[0]
         batch_size,max_len,feat_dim = sequence_output.shape
-        valid_output = torch.zeros(batch_size,max_len,feat_dim,dtype=torch.float32,device='cuda')
+        valid_output = torch.zeros(batch_size,
+                                   max_len,
+                                   feat_dim,
+                                   dtype=torch.float32,
+                                   device='cuda')
         for i in range(batch_size):
             jj = -1
             for j in range(max_len):
@@ -78,16 +90,19 @@ class InputExample(object):
         self.text_b = text_b
         self.label = label
 
+
 class InputFeatures(object):
     """A single set of features of data."""
 
-    def __init__(self, input_ids, input_mask, segment_ids, label_id, valid_ids=None, label_mask=None):
+    def __init__(self, input_ids, input_mask, segment_ids,
+                 label_id, valid_ids=None, label_mask=None):
         self.input_ids = input_ids
         self.input_mask = input_mask
         self.segment_ids = segment_ids
         self.label_id = label_id
         self.valid_ids = valid_ids
         self.label_mask = label_mask
+
 
 def readfile(filename):
     '''
@@ -113,6 +128,7 @@ def readfile(filename):
         sentence = []
         label = []
     return data
+
 
 class DataProcessor(object):
     """Base class for data converters for sequence classification data sets."""
@@ -165,6 +181,7 @@ class NerProcessor(DataProcessor):
             label = label
             examples.append(InputExample(guid=guid,text_a=text_a,text_b=text_b,label=label))
         return examples
+
 
 def convert_examples_to_features(examples, label_list, max_seq_length, tokenizer):
     """Loads a data file into a list of `InputBatch`s."""
@@ -253,6 +270,7 @@ def convert_examples_to_features(examples, label_list, max_seq_length, tokenizer
                               label_mask=label_mask))
     return features
 
+
 def main():
     parser = argparse.ArgumentParser()
 
@@ -270,7 +288,7 @@ def main():
                         default=None,
                         type=str,
                         required=True,
-                        help="The name of the task to train.")
+                        help="The name of the task to train. Default: ner")
     parser.add_argument("--output_dir",
                         default=None,
                         type=str,
@@ -412,12 +430,15 @@ def main():
     if args.do_train:
         train_examples = processor.get_train_examples(args.data_dir)
         num_train_optimization_steps = int(
-            len(train_examples) / args.train_batch_size / args.gradient_accumulation_steps) * args.num_train_epochs
+            len(train_examples) / args.train_batch_size / args.gradient_accumulation_steps
+        ) * args.num_train_epochs
         if args.local_rank != -1:
             num_train_optimization_steps = num_train_optimization_steps // torch.distributed.get_world_size()
 
     if args.local_rank not in [-1, 0]:
-        torch.distributed.barrier()  # Make sure only the first process in distributed training will download model & vocab
+        # Make sure only the first process in distributed training will
+        # download model & vocab
+        torch.distributed.barrier()
 
     # Prepare model
     config = BertConfig.from_pretrained(args.bert_model, num_labels=num_labels, finetuning_task=args.task_name)
@@ -426,15 +447,18 @@ def main():
               config = config)
 
     if args.local_rank == 0:
-        torch.distributed.barrier()  # Make sure only the first process in distributed training will download model & vocab
-
+        # Make sure only the first process in distributed training will
+        # download model & vocab
+        torch.distributed.barrier()
     model.to(device)
 
     param_optimizer = list(model.named_parameters())
     no_decay = ['bias','LayerNorm.weight']
     optimizer_grouped_parameters = [
-        {'params': [p for n, p in param_optimizer if not any(nd in n for nd in no_decay)], 'weight_decay': args.weight_decay},
-        {'params': [p for n, p in param_optimizer if any(nd in n for nd in no_decay)], 'weight_decay': 0.0}
+        {'params': [p for n, p in param_optimizer
+                    if not any(nd in n for nd in no_decay)], 'weight_decay': args.weight_decay},
+        {'params': [p for n, p in param_optimizer
+                    if any(nd in n for nd in no_decay)], 'weight_decay': 0.0}
         ]
     warmup_steps = int(args.warmup_proportion * num_train_optimization_steps)
     optimizer = AdamW(optimizer_grouped_parameters, lr=args.learning_rate, eps=args.adam_epsilon)
@@ -472,12 +496,16 @@ def main():
         all_label_ids = torch.tensor([f.label_id for f in train_features], dtype=torch.long)
         all_valid_ids = torch.tensor([f.valid_ids for f in train_features], dtype=torch.long)
         all_lmask_ids = torch.tensor([f.label_mask for f in train_features], dtype=torch.long)
-        train_data = TensorDataset(all_input_ids, all_input_mask, all_segment_ids, all_label_ids,all_valid_ids,all_lmask_ids)
+        train_data = TensorDataset(all_input_ids, all_input_mask,
+                                   all_segment_ids,
+                                   all_label_ids,all_valid_ids,all_lmask_ids)
+
         if args.local_rank == -1:
             train_sampler = RandomSampler(train_data)
         else:
             train_sampler = DistributedSampler(train_data)
-        train_dataloader = DataLoader(train_data, sampler=train_sampler, batch_size=args.train_batch_size)
+        train_dataloader = DataLoader(train_data, sampler=train_sampler,
+                                      batch_size=args.train_batch_size)
 
         model.train()
         for _ in trange(int(args.num_train_epochs), desc="Epoch"):
@@ -514,7 +542,11 @@ def main():
         model_to_save.save_pretrained(args.output_dir)
         tokenizer.save_pretrained(args.output_dir)
         label_map = {i : label for i, label in enumerate(label_list,1)}
-        model_config = {"bert_model":args.bert_model,"do_lower":args.do_lower_case,"max_seq_length":args.max_seq_length,"num_labels":len(label_list)+1,"label_map":label_map}
+        model_config = {"bert_model":args.bert_model,
+                        "do_lower":args.do_lower_case,
+                        "max_seq_length":args.max_seq_length,
+                        "num_labels":len(label_list)+1,
+                        "label_map":label_map}
         json.dump(model_config,open(os.path.join(args.output_dir,"model_config.json"),"w"))
         # Load a trained model and config that you have fine-tuned
     else:
@@ -531,7 +563,10 @@ def main():
             eval_examples = processor.get_test_examples(args.data_dir)
         else:
             raise ValueError("eval on dev or test set only")
-        eval_features = convert_examples_to_features(eval_examples, label_list, args.max_seq_length, tokenizer)
+        eval_features = convert_examples_to_features(eval_examples,
+                                                     label_list,
+                                                     args.max_seq_length,
+                                                     tokenizer)
         logger.info("***** Running evaluation *****")
         logger.info("  Num examples = %d", len(eval_examples))
         logger.info("  Batch size = %d", args.eval_batch_size)
@@ -541,17 +576,24 @@ def main():
         all_label_ids = torch.tensor([f.label_id for f in eval_features], dtype=torch.long)
         all_valid_ids = torch.tensor([f.valid_ids for f in eval_features], dtype=torch.long)
         all_lmask_ids = torch.tensor([f.label_mask for f in eval_features], dtype=torch.long)
-        eval_data = TensorDataset(all_input_ids, all_input_mask, all_segment_ids, all_label_ids,all_valid_ids,all_lmask_ids)
+        eval_data = TensorDataset(all_input_ids, all_input_mask,
+                                  all_segment_ids,
+                                  all_label_ids,all_valid_ids,all_lmask_ids)
+
         # Run prediction for full data
         eval_sampler = SequentialSampler(eval_data)
-        eval_dataloader = DataLoader(eval_data, sampler=eval_sampler, batch_size=args.eval_batch_size)
+        eval_dataloader = DataLoader(eval_data,
+                                     sampler=eval_sampler,
+                                     batch_size=args.eval_batch_size)
+
         model.eval()
         eval_loss, eval_accuracy = 0, 0
         nb_eval_steps, nb_eval_examples = 0, 0
         y_true = []
         y_pred = []
         label_map = {i : label for i, label in enumerate(label_list,1)}
-        for input_ids, input_mask, segment_ids, label_ids,valid_ids,l_mask in tqdm(eval_dataloader, desc="Evaluating"):
+        progress = tqdm(eval_dataloader, desc="Evaluating")
+        for input_ids,input_mask,segment_ids,label_ids,valid_ids,l_mask in progress:
             input_ids = input_ids.to(device)
             input_mask = input_mask.to(device)
             segment_ids = segment_ids.to(device)
@@ -560,7 +602,11 @@ def main():
             l_mask = l_mask.to(device)
 
             with torch.no_grad():
-                logits = model(input_ids, segment_ids, input_mask,valid_ids=valid_ids,attention_mask_label=l_mask)
+                logits = model(input_ids,
+                               segment_ids,
+                               input_mask,
+                               valid_ids=valid_ids,
+                               attention_mask_label=l_mask)
 
             logits = torch.argmax(F.log_softmax(logits,dim=2),dim=2)
             logits = logits.detach().cpu().numpy()
