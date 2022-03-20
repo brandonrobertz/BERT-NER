@@ -22,69 +22,22 @@ BERT named entity recognition (NER) with an emphasis on fine-tuning and ease-of-
 
 More information about getting prepared for fine-tuning BERT NER models can be found in `data-notes-fine-tuning.md`.
 
-# Result
+# Pre-Trained Models
 
-## BERT-BASE
+- [BERT-BASE](https://1drv.ms/u/s!Auc3VRul9wo5hghurzE47bTRyUeR?e=08seO3)
+- [BERT-LARGE](https://1drv.ms/u/s!Auc3VRul9wo5hgr8jwhFD8iPCYp1?e=UsJJ2V)
 
-### Validation Data
-
-```
-             precision    recall  f1-score   support
-
-        PER     0.9677    0.9745    0.9711      1842
-        LOC     0.9654    0.9711    0.9682      1837
-       MISC     0.8851    0.9111    0.8979       922
-        ORG     0.9299    0.9292    0.9295      1341
-
-avg / total     0.9456    0.9534    0.9495      5942
-```
-
-### Test Data
+Average relative results:
 
 ```
-             precision    recall  f1-score   support
-
-        PER     0.9635    0.9629    0.9632      1617
-        ORG     0.8883    0.9097    0.8989      1661
-        LOC     0.9272    0.9317    0.9294      1668
-       MISC     0.7689    0.8248    0.7959       702
-
-avg / total     0.9065    0.9209    0.9135      5648
+                     precision    recall  f1-score   support
+Bert-Base Test          0.9065    0.9209    0.9135      5648
+Bert-Base Validation    0.9456    0.9534    0.9495      5942
+Bert-Large Test         0.9121    0.9232    0.9174      5648
+Bert-Large Validation   0.9531    0.9606    0.9568      5942
 ```
 
-## Pretrained model download from [here](https://1drv.ms/u/s!Auc3VRul9wo5hghurzE47bTRyUeR?e=08seO3)
-
-## BERT-LARGE
-
-### Validation Data
-
-```
-             precision    recall  f1-score   support
-
-        ORG     0.9288    0.9441    0.9364      1341
-        LOC     0.9754    0.9728    0.9741      1837
-       MISC     0.8976    0.9219    0.9096       922
-        PER     0.9762    0.9799    0.9781      1842
-
-avg / total     0.9531    0.9606    0.9568      5942
-```
-
-### Test Data
-
-```
-             precision    recall  f1-score   support
-
-        LOC     0.9366    0.9293    0.9329      1668
-        ORG     0.8881    0.9175    0.9026      1661
-        PER     0.9695    0.9623    0.9659      1617
-       MISC     0.7787    0.8319    0.8044       702
-
-avg / total     0.9121    0.9232    0.9174      5648
-```
-
-## Pretrained model download from [here](https://1drv.ms/u/s!Auc3VRul9wo5hgr8jwhFD8iPCYp1?e=UsJJ2V)
-
-# Inference
+# Inference via CLI/Script
 
 ```python
 from bert import Ner
@@ -120,42 +73,7 @@ print(output)
 '''
 ```
 
-# Inference C++
-
-## Pretrained and converted bert-base model download from [here](https://1drv.ms/u/s!Auc3VRul9wo5hgkJjtxZ8FAQGuj2?e=wffJCT)
-
-### Download libtorch from [here](https://download.pytorch.org/libtorch/cpu/libtorch-shared-with-deps-1.2.0.zip)
-
-- install `cmake`, tested with `cmake` version `3.10.2`
-- unzip downloaded model and `libtorch` in `BERT-NER`
-- Compile C++ App
-
-  ```bash
-    cd cpp-app/
-    cmake -DCMAKE_PREFIX_PATH=../libtorch
-   ```
-    ![cmake output image](/img/cmake.png)
-    ```bash
-    make
-    ```
-    ![make output image](/img/make.png)
-
-
-- Runing APP
-
-  ```bash
-     ./app ../base
-  ```
-     ![inference output image](/img/inference.png)
-
-NB: Bert-Base C++ model is split in to two parts.
-
-  - Bert Feature extractor and NER classifier.
-  - This is done because `jit trace` don't support `input` depended `for` loop or `if` conditions inside `forword` function of `model`.
-
-
-
-# Deploy REST-API
+# Inference via REST-API
 
 BERT NER model deployed as rest api
 
