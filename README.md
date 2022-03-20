@@ -1,19 +1,10 @@
 # BERT NER
 
-Use google BERT to do CoNLL-2003 NER !
-
-![new](https://i.imgur.com/OB4Ugp4.png) Train model using Python and Inference using C++
-
-[ALBERT-TF2.0](https://github.com/kamalkraj/ALBERT-TF2.0)
-
-[BERT-NER-TENSORFLOW-2.0](https://github.com/kamalkraj/BERT-NER-TF)
-
-[BERT-SQuAD](https://github.com/kamalkraj/BERT-SQuAD)
-
+BERT named entity recognition (NER) with an emphasis on fine-tuning and ease-of-use (Docker). Forked from Kamal Raj's [original repo](https://github.com/kamalkraj/BERT-NER).
 
 # Requirements
 
--  `python3`
+- `python3`
 - `pip3 install -r requirements.txt`
 
 # Run
@@ -26,6 +17,7 @@ Use google BERT to do CoNLL-2003 NER !
 ## BERT-BASE
 
 ### Validation Data
+
 ```
              precision    recall  f1-score   support
 
@@ -36,7 +28,9 @@ Use google BERT to do CoNLL-2003 NER !
 
 avg / total     0.9456    0.9534    0.9495      5942
 ```
+
 ### Test Data
+
 ```
              precision    recall  f1-score   support
 
@@ -47,11 +41,13 @@ avg / total     0.9456    0.9534    0.9495      5942
 
 avg / total     0.9065    0.9209    0.9135      5648
 ```
+
 ## Pretrained model download from [here](https://1drv.ms/u/s!Auc3VRul9wo5hghurzE47bTRyUeR?e=08seO3)
 
 ## BERT-LARGE
 
 ### Validation Data
+
 ```
              precision    recall  f1-score   support
 
@@ -62,7 +58,9 @@ avg / total     0.9065    0.9209    0.9135      5648
 
 avg / total     0.9531    0.9606    0.9568      5942
 ```
+
 ### Test Data
+
 ```
              precision    recall  f1-score   support
 
@@ -73,6 +71,7 @@ avg / total     0.9531    0.9606    0.9568      5942
 
 avg / total     0.9121    0.9232    0.9174      5648
 ```
+
 ## Pretrained model download from [here](https://1drv.ms/u/s!Auc3VRul9wo5hgr8jwhFD8iPCYp1?e=UsJJ2V)
 
 # Inference
@@ -114,11 +113,13 @@ print(output)
 # Inference C++
 
 ## Pretrained and converted bert-base model download from [here](https://1drv.ms/u/s!Auc3VRul9wo5hgkJjtxZ8FAQGuj2?e=wffJCT)
+
 ### Download libtorch from [here](https://download.pytorch.org/libtorch/cpu/libtorch-shared-with-deps-1.2.0.zip)
 
 - install `cmake`, tested with `cmake` version `3.10.2`
 - unzip downloaded model and `libtorch` in `BERT-NER`
 - Compile C++ App
+
   ```bash
     cd cpp-app/
     cmake -DCMAKE_PREFIX_PATH=../libtorch
@@ -131,27 +132,35 @@ print(output)
 
 
 - Runing APP
+
   ```bash
      ./app ../base
   ```
      ![inference output image](/img/inference.png)
 
 NB: Bert-Base C++ model is split in to two parts.
+
   - Bert Feature extractor and NER classifier.
   - This is done because `jit trace` don't support `input` depended `for` loop or `if` conditions inside `forword` function of `model`.
 
 
 
 # Deploy REST-API
+
 BERT NER model deployed as rest api
+
 ```bash
 python api.py
 ```
+
 API will be live at `0.0.0.0:8000` endpoint `predict`
+
 #### cURL request
+
 ` curl -X POST http://0.0.0.0:8000/predict -H 'Content-Type: application/json' -d '{ "text": "Steve went to Paris" }'`
 
 Output
+
 ```json
 {
     "result": [
@@ -178,14 +187,3 @@ Output
     ]
 }
 ```
-#### cURL 
-![curl output image](/img/curl.png)
-#### Postman
-![postman output image](/img/postman.png)
-
-### C++ unicode support 
-- http://github.com/ufal/unilib
-
-### Tensorflow version
-
-- https://github.com/kyzhouhzau/BERT-NER
