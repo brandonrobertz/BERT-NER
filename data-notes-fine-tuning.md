@@ -189,8 +189,9 @@ TODO: I have tagged sequences like this (in a `ner-data.json`):
       ]
     }, ...]
 
-And will need to parse them, doing the following:
+And will need to parse them for training, doing the following:
 
+- filter out documents w/o labeling
 - skipping whitespace-only, `&nbsp` and `LINE-BREAK` tokens
 - stripping token text
 - converting tags to B- and I- prefixed tags, based on sequences

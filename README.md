@@ -1,6 +1,6 @@
 # BERT NER
 
-BERT named entity recognition (NER) with an emphasis on fine-tuning and ease-of-use (Docker). Forked from Kamal Raj's [original repo](https://github.com/kamalkraj/BERT-NER).
+BERT named entity recognition (NER) with an emphasis on fine-tuning using my [NER labeler tool](https://github.com/brandonrobertz/ner-labeler) and ease-of-use (Docker). Forked from Kamal Raj's [original repo](https://github.com/kamalkraj/BERT-NER).
 
 ## Requirements
 
@@ -26,6 +26,8 @@ More information about getting prepared for fine-tuning BERT NER models can be f
 
 - [BERT-BASE](https://1drv.ms/u/s!Auc3VRul9wo5hghurzE47bTRyUeR?e=08seO3)
 - [BERT-LARGE](https://1drv.ms/u/s!Auc3VRul9wo5hgr8jwhFD8iPCYp1?e=UsJJ2V)
+
+To use one of the models, download it and then set the `--output_dir` argument to the path containing the directory with the model in it as found in the archive. The bert large model is found in a directory called `out_large`.
 
 Average relative results:
 
