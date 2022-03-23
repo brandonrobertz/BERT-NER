@@ -170,7 +170,8 @@ class NerProcessor(DataProcessor):
             self._read_tsv(os.path.join(data_dir, "test.txt")), "test")
 
     def get_labels(self):
-        return ["O", "B-MISC", "I-MISC",  "B-PER", "I-PER", "B-ORG", "I-ORG", "B-LOC", "I-LOC", "[CLS]", "[SEP]"]
+        # return ["O", "B-MISC", "I-MISC",  "B-PER", "I-PER", "B-ORG", "I-ORG", "B-LOC", "I-LOC", "[CLS]", "[SEP]"]
+        return ["O", "I-ALEG", "B-ALEG", "I-DDATE", "B-DDATE", "I-DIS", "B-DIS", "I-IANO", "B-IANO", "I-IDATE", "B-IDATE", "B-OFF", "I-OFF", "I-OUT", "B-OUT", "[CLS]", "[SEP]"]
 
     def _create_examples(self,lines,set_type):
         examples = []

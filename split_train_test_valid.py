@@ -1,5 +1,6 @@
 import codecs
 import os
+import json
 import sys
 
 from sklearn.model_selection import train_test_split
@@ -20,6 +21,13 @@ if __name__ == "__main__":
 
     print("Data", len(data))
 
+    labels = set()
+    for line in data:
+        if not line.strip():
+            continue
+        word, label = line.strip().split(" ")
+        labels.add(label)
+
     train, test = train_test_split(data, test_size = 0.2)
     test, val = train_test_split(test, test_size = 0.5)
 
@@ -30,3 +38,5 @@ if __name__ == "__main__":
     write_out(train, "data/train.txt")
     write_out(test, "data/test.txt")
     write_out(val, "data/valid.txt")
+    with open("data/labels.json", "w") as f:
+        f.write(json.dumps(sorted(list(labels), key=lambda l: l.split("-")[1] if "-" in l else l)))
