@@ -6,5 +6,8 @@ services:
     build: .
     environment:
       BRANDON: "brandon"
+      NVIDIA_VISIBLE_DEVICES: all
+      NVIDIA_DRIVER_CAPABILITIES: all
     volumes:
       - ./:/app
+      - ./.pytorch_transformers:${HOME}/.cache/torch/pytorch_transformers
