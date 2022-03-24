@@ -128,3 +128,6 @@ CMakeCache.txt
 
 *.swp
 *.zip
+
+ner-*.json
+wapd.txt
