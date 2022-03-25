@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 import json
 import os
 import re
@@ -6,6 +6,9 @@ import sys
 
 
 SKIP_WORDS = ["&nbsp", "LINE-BREAK"]
+# number of non-labeled tokens before and after a sequence of labels to
+# include, this reduces the sparsity of training data
+CONTEXT = 30
 
 
 def load_data(filepath):
@@ -72,6 +75,7 @@ def transform_document(file_data, labels):
         yield f"{word} O"
 
     prev_label = None
+    blanks = 0
     for word_data in words_data:
         label = word_data.get("label")
         word = word_data["text"].strip()
@@ -81,9 +85,15 @@ def transform_document(file_data, labels):
 
         if not label:
             prev_label = None
+            blanks += 1
+            if CONTEXT is not None and blanks > CONTEXT:
+                continue
             # O, aka Outside, is the default non-label
             yield f"{word} O"
             continue
+
+        # we have a label
+        blanks = 0
 
         # Inner vs Begin label
         prefix = "I" if prev_label == label else "B"

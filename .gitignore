@@ -131,3 +131,6 @@ CMakeCache.txt
 
 ner-*.json
 wapd.txt
+wapd*.txt
+data/*
+data*/*
